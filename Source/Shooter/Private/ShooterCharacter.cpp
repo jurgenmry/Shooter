@@ -2,7 +2,13 @@
 
 
 #include "ShooterCharacter.h"
+#include "Kismet/GameplayStatics.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "Sound/SoundCue.h"
+#include "Particles/ParticleSystem.h"
+#include "Engine/SkeletalMeshSocket.h"
+#include "Animation/AnimMontage.h"
 #include "Camera/CameraComponent.h"
 
 
@@ -31,6 +37,21 @@ AShooterCharacter::AShooterCharacter()
 
 	BaseTurnRate = 45.0f;
 	BaseLookUpRate = 45.0f;
+
+
+	//Dont allow the character to rotate when the controller does it 
+	//Let the controller only affect the camera
+	bUseControllerRotationPitch = false;
+	bUseControllerRotationRoll = false;
+	bUseControllerRotationYaw = false;
+
+
+	//Allow the character to move only with the direction
+	//Confirgure character movement
+	GetCharacterMovement()->bOrientRotationToMovement = true; // Character moves in direction of movement
+	GetCharacterMovement()->RotationRate = FRotator(0.0f, 540.0f, 0.0f); // at this rotation rate
+	GetCharacterMovement()->JumpZVelocity = 600.0f;
+	GetCharacterMovement()->AirControl = 0.0f;
 
 }
 
@@ -88,6 +109,35 @@ void AShooterCharacter::LookUpRate(float Rate)
 	AddControllerPitchInput(Rate * BaseLookUpRate * GetWorld()->GetDeltaSeconds());
 }
 
+void AShooterCharacter::FireWeapon()
+{
+	//UE_LOG(LogTemp, Warning, TEXT("Fire Weapon"));
+	
+	if (FireSound)
+	{
+		UGameplayStatics::PlaySound2D(this, FireSound);
+	} 
+
+	const USkeletalMeshSocket* BarrelSocket = GetMesh()->GetSocketByName("BarrelSocket");
+	if (BarrelSocket)
+	{
+		const FTransform SocketTransform = BarrelSocket->GetSocketTransform(GetMesh());
+
+		if (MuzzleFlash)
+		{
+			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), MuzzleFlash, SocketTransform);
+		}
+	}
+
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+
+	if (AnimInstance && HipFireMontage)
+	{
+		AnimInstance->Montage_Play(HipFireMontage);
+		AnimInstance->Montage_JumpToSection(FName("StartFire"));
+	}
+}
+
 // Called to bind functionality to input
 void AShooterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
@@ -109,4 +159,6 @@ void AShooterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
 
+	//For the firing of weapons
+	PlayerInputComponent->BindAction("FireButton", IE_Pressed, this, &AShooterCharacter::FireWeapon);
 }

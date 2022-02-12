@@ -46,6 +46,18 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
 	float BaseLookUpRate; //Look Up with camera
 
+	//Randomize gunshot sound cue
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat", meta = (AllowPrivateAccess = "true"))
+	class USoundCue* FireSound;
+
+	//Flash spawn at barrelSocket
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat", meta = (AllowPrivateAccess = "true"))
+	class UParticleSystem* MuzzleFlash;
+
+	//Montage For firing Weapon
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat", meta = (AllowPrivateAccess = "true"))
+	class UAnimMontage* HipFireMontage;
+
 public:
 
 	//This is a getter for the cameraBoom
@@ -68,5 +80,9 @@ protected:
 	void TurnAtRate(float Rate);
 
 	void LookUpRate(float Rate);
+
+
+	//call when the fire button is pressed
+	void FireWeapon(); 
 
 };
