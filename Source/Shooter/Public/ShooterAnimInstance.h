@@ -38,7 +38,21 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Movement")
 	bool bIsAccelerating; //To know if the character is standing steel or not
 
+
+
+	//Ofset yaw used for strafing
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement")
+	float MovementOffsetYaw;
+
+	//OfsetYaw frame before we stop moving
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement")
+	float LastMovementOfsetYaw;
+
+
+
 private:
 
-
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Movement", meta = (AllowPrivateAccess = "true"))
+	bool bAiming;
+	
 };

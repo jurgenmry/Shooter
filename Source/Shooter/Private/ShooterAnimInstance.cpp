@@ -2,6 +2,7 @@
 
 #include "ShooterCharacter.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "ShooterAnimInstance.h"
 
 
@@ -37,5 +38,26 @@ void UShooterAnimInstance::UpdateAnimationProperties(float DeltaTime)
 		{
 			bIsAccelerating = false;
 		}
+
+		//What is the rotation corresponding to the direction we are aim at
+		FRotator AimRotation = ShooterCharacter->GetBaseAimRotation();
+
+		FString RotationMessage = FString::Printf(TEXT("Base Aim Rotation: %f"), AimRotation.Yaw);
+		FRotator MovementRotation = UKismetMathLibrary::MakeRotFromX(ShooterCharacter -> GetVelocity());
+		MovementOffsetYaw = UKismetMathLibrary::NormalizedDeltaRotator(MovementRotation, AimRotation).Yaw;
+		
+
+		if (ShooterCharacter->GetVelocity().Size() > 0.0f)
+		{
+			LastMovementOfsetYaw = MovementOffsetYaw;
+		}
+
+		bAiming = ShooterCharacter->GetAiming();
+		/*if (GEngine)
+		{
+			GEngine->AddOnScreenDebugMessage(1, 0.0f, FColor::Red, RotationMessage);
+		}
+		*/
+
 	}
 }
